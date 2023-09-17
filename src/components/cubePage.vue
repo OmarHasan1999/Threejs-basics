@@ -5,26 +5,26 @@
 <script>
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import * as dat from 'lil-gui'
-import gsap from 'gsap'
+
 
 export default {
   mounted() {
 const scene = new THREE.Scene()
-const parameter = {
-  color: 0x00ff00,
-  click: () => {
-    gsap.to(cube.rotation, { z: cube.rotation.z + 50, duration:3})
-  }
+const geometry = new THREE.BufferGeometry()
+const count = 50
+const positions = new Float32Array(count * 9)
+
+for( let i = 0; i < count * 9; i++){
+  positions[i] = (Math.random() - 0.5 ) * 4
 }
-const material = new THREE.MeshBasicMaterial({color: parameter.color})
-const cube = new THREE.Mesh(
-             new THREE.BoxGeometry(1,1,1),
-             material
-)
+
+const positionsAttribute = new THREE.BufferAttribute(positions,3)
+geometry.setAttribute("position",positionsAttribute)
+
+const material = new THREE.MeshBasicMaterial({color:"#ff0000",wireframe: true})
+const cube = new THREE.Mesh(geometry,material)
 
 scene.add(cube);
-
 
 const sizes = {
   width : window.innerWidth,
@@ -32,7 +32,7 @@ const sizes = {
 }
 
  const camera = new THREE.PerspectiveCamera(75 ,sizes.width/sizes.height,0.1,100)
- camera.position.z = 5
+ camera.position.z = 10
  scene.add(camera)
 
 const renderer = new THREE.WebGLRenderer()
@@ -57,24 +57,10 @@ window.addEventListener("resize",() => {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 })
 
-const gui = new dat.GUI()
-
-gui.add(cube.position, "x")
-gui.add(cube.position, "y", -5,5,1)
-gui.add(cube.position, "z",).min(1).max(7).step(1).name("z axios")
-gui.add(cube, "visible")
-gui.add(cube.material, "wireframe")
-
-gui.addColor( parameter, "color").onChange(() => {
-  material.color.set(parameter.color)
-})
-gui.add(parameter,"click")
 
 
 
 const animate = () => {
-
-  
 
   //enable dumbing
   controls.update()
