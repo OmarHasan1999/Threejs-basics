@@ -5,19 +5,26 @@
 <script>
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-
+import * as dat from 'lil-gui'
+import gsap from 'gsap'
 
 export default {
   mounted() {
 const scene = new THREE.Scene()
-const geometry = new THREE.BoxGeometry(1,1,1)
-const material = new THREE.MeshBasicMaterial({color:"#ff0000"})
-const material1 = new THREE.MeshBasicMaterial({color:"#00ff00"})
-const cube = new THREE.Mesh(geometry,material)
-const cube1 = new THREE.Mesh(geometry,material1)
-scene.add(cube,cube1);
+const parameter = {
+  color: 0x00ff00,
+  click: () => {
+    gsap.to(cube.rotation, { z: cube.rotation.z + 50, duration:3})
+  }
+}
+const material = new THREE.MeshBasicMaterial({color: parameter.color})
+const cube = new THREE.Mesh(
+             new THREE.BoxGeometry(1,1,1),
+             material
+)
 
-cube1.position.z = -5
+scene.add(cube);
+
 
 const sizes = {
   width : window.innerWidth,
@@ -25,26 +32,8 @@ const sizes = {
 }
 
  const camera = new THREE.PerspectiveCamera(75 ,sizes.width/sizes.height,0.1,100)
- camera.position.z = 4
+ camera.position.z = 5
  scene.add(camera)
-
-/**orthographic camera */
-// const aspectRatio = sizes.width/sizes.height
-// const camera = new THREE.OrthographicCamera(
-//   //left
-//   -1 * aspectRatio,
-//   //right
-//   1 * aspectRatio,
-//   //top
-//   1,
-//   //bottom
-//   -1,
-//   //near
-//   0,1,
-//   //far
-//   100
-
-// )
 
 const renderer = new THREE.WebGLRenderer()
 renderer.setSize(sizes.width,sizes.height)
@@ -68,29 +57,24 @@ window.addEventListener("resize",() => {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 })
 
-/** cursor events */
-const cursor = {
-  x:0,
-  y:0
-}
+const gui = new dat.GUI()
 
-/** add the mousemove event listener */
-window.addEventListener("mousemove",(event) => {
-  cursor.x = event.clientX / sizes.width - 0.5
-  cursor.y = event.clientY / sizes.height - 0.5
+gui.add(cube.position, "x")
+gui.add(cube.position, "y", -5,5,1)
+gui.add(cube.position, "z",).min(1).max(7).step(1).name("z axios")
+gui.add(cube, "visible")
+gui.add(cube.material, "wireframe")
+
+gui.addColor( parameter, "color").onChange(() => {
+  material.color.set(parameter.color)
 })
+gui.add(parameter,"click")
+
+
 
 const animate = () => {
 
-  /**animate 1 */
-  // camera.position.x = cursor.x * 10
-  // camera.position.y = -cursor.y * 10
-
-  //animate 2 
-  camera.position.x = Math.sin(cursor.x * Math.PI * 2) * 3
-  camera.position.z = Math.cos(cursor.x * Math.PI * 2) * 3
-  camera.position.y = cursor.y * 20
-  camera.lookAt(cube.position)
+  
 
   //enable dumbing
   controls.update()
